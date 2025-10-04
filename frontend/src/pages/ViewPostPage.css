@@ -1,0 +1,19 @@
+.view-post-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 2rem 1rem;
+}
+
+/* Center loading and error states */
+.view-post-page .loading-spinner-container,
+.view-post-page .error-message {
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .view-post-page {
+    padding: 1rem 0;
+  }
+}

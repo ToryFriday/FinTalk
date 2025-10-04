@@ -1,0 +1,16 @@
+{
+  "sample_posts": [
+    {
+      "title": "Test Post 1",
+      "content": "This is test content for post 1",
+      "author": "Test Author 1",
+      "tags": "test, sample"
+    },
+    {
+      "title": "Test Post 2", 
+      "content": "This is test content for post 2",
+      "author": "Test Author 2",
+      "tags": "test, example"
+    }
+  ]
+}

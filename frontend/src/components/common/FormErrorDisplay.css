@@ -1,0 +1,102 @@
+.form-error-display {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #721c24;
+}
+
+.form-error-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-error-icon {
+  font-size: 1.1rem;
+}
+
+.form-error-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #721c24;
+}
+
+.form-error-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.form-error-item {
+  padding: 0.25rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.form-error-field {
+  color: #721c24;
+  font-weight: 600;
+  min-width: fit-content;
+}
+
+.form-error-message {
+  color: #721c24;
+  flex: 1;
+}
+
+/* Alternative styling for inline errors */
+.form-error-display.inline {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.form-error-display.inline .form-error-header {
+  margin-bottom: 0.5rem;
+}
+
+.form-error-display.inline .form-error-title {
+  font-size: 0.9rem;
+}
+
+.form-error-display.inline .form-error-item {
+  padding: 0.125rem 0;
+  font-size: 0.9rem;
+}
+
+/* Compact styling for small spaces */
+.form-error-display.compact {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.form-error-display.compact .form-error-header {
+  margin-bottom: 0.5rem;
+}
+
+.form-error-display.compact .form-error-title {
+  font-size: 0.9rem;
+}
+
+.form-error-display.compact .form-error-item {
+  padding: 0.125rem 0;
+  font-size: 0.85rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .form-error-item {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .form-error-field {
+    min-width: auto;
+  }
+}

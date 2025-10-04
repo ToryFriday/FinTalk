@@ -1,0 +1,169 @@
+/* AddPostPage Component Styles */
+
+.add-post-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px 0;
+}
+
+/* Page Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 0 20px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 12px;
+}
+
+.page-description {
+  font-size: 1.1rem;
+  color: #6c757d;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Success Message */
+.success-message {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.success-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.success-icon {
+  font-size: 1.5rem;
+}
+
+.success-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #155724;
+}
+
+.redirect-message {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Page Actions */
+.page-actions {
+  max-width: 800px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Cancel Button */
+.cancel-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+.cancel-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cancel-button:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-post-page {
+    padding: 16px 0;
+  }
+  
+  .page-header {
+    margin-bottom: 32px;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .page-description {
+    font-size: 1rem;
+  }
+  
+  .success-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .page-actions {
+    padding: 0 16px;
+  }
+  
+  .cancel-button {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .page-description {
+    font-size: 0.95rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .success-message {
+    border-width: 2px;
+  }
+  
+  .cancel-button {
+    border: 2px solid transparent;
+  }
+  
+  .cancel-button:focus {
+    border-color: #ffffff;
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .cancel-button {
+    transition: none;
+  }
+}

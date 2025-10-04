@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS and Security Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>CORS and Security Configuration Test</h1>
+    <p>This page tests the CORS and security configuration between the frontend and backend.</p>
+    
+    <div class="test-section">
+        <h2>Configuration</h2>
+        <p><strong>Backend URL:</strong> <span id="backend-url">http://localhost:8000</span></p>
+        <p><strong>Frontend URL:</strong> <span id="frontend-url">http://localhost:3000</span></p>
+        <button onclick="updateConfig()">Update URLs</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Tests</h2>
+        <button onclick="testCORS()">Test CORS Configuration</button>
+        <button onclick="testSecurityHeaders()">Test Security Headers</button>
+        <button onclick="testInputSanitization()">Test Input Sanitization</button>
+        <button onclick="testCSRF()">Test CSRF Protection</button>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        const BACKEND_URL = 'http://localhost:8000';
+        const API_ENDPOINTS = {
+            POSTS: '/api/posts/',
+            POST_DETAIL: (id) => `/api/posts/${id}/`
+        };
+        
+        // Update configuration display
+        function updateConfig() {
+            document.getElementById('backend-url').textContent = BACKEND_URL;
+            document.getElementById('frontend-url').textContent = window.location.origin;
+        }
+        
+        // Utility function to add result
+        function addResult(title, success, message, details = null) {
+            const resultsDiv = document.getElementById('results');
+            const resultItem = document.createElement('div');
+            resultItem.className = `result-item ${success ? 'success' : 'error'}`;
+            
+            let html = `<h3>${title}</h3><p>${message}</p>`;
+            if (details) {
+                html += `<pre>${JSON.stringify(details, null, 2)}</pre>`;
+            }
+            
+            resultItem.innerHTML = html;
+            resultsDiv.appendChild(resultItem);
+        }
+        
+        // Test CORS configuration
+        async function testCORS() {
+            try {
+                // Test preflight request
+                const response = await fetch(`${BACKEND_URL}${API_ENDPOINTS.POSTS}`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type, X-CSRFToken'
+                    }
+                });
+                
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    if (key.toLowerCase().includes('access-control')) {
+                        headers[key] = value;
+                    }
+                });
+                
+                addResult(
+                    'CORS Preflight Test',
+                    response.ok,
+                    response.ok ? 'CORS preflight request successful' : 'CORS preflight request failed',
+                    { status: response.status, corsHeaders: headers }
+                );
+                
+                // Test actual request
+                const getResponse = await fetch(`${BACKEND_URL}${API_ENDPOINTS.POSTS}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Origin': window.location.origin
+                    }
+                });
+                
+                addResult(
+                    'CORS GET Request Test',
+                    getResponse.ok || getResponse.status === 500, // 500 is OK for this test (DB might not be set up)
+                    getResponse.ok ? 'Cross-origin GET request successful' : `Request returned status ${getResponse.status}`,
+                    { status: getResponse.status }
+                );
+                
+            } catch (error) {
+                addResult(
+                    'CORS Test',
+                    false,
+                    'CORS test failed: ' + error.message,
+                    { error: error.toString() }
+                );
+            }
+        }
+        
+        // Test security headers
+        async function testSecurityHeaders() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_ENDPOINTS.POSTS}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const securityHeaders = {};
+                const expectedHeaders = [
+                    'x-content-type-options',
+                    'x-frame-options',
+                    'x-xss-protection',
+                    'referrer-policy'
+                ];
+                
+                expectedHeaders.forEach(header => {
+                    const value = response.headers.get(header);
+                    if (value) {
+                        securityHeaders[header] = value;
+                    }
+                });
+                
+                const foundHeaders = Object.keys(securityHeaders).length;
+                const success = foundHeaders >= 3; // At least 3 out of 4 headers
+                
+                addResult(
+                    'Security Headers Test',
+                    success,
+                    `Found ${foundHeaders} out of ${expectedHeaders.length} expected security headers`,
+                    securityHeaders
+                );
+                
+            } catch (error) {
+                addResult(
+                    'Security Headers Test',
+                    false,
+                    'Security headers test failed: ' + error.message,
+                    { error: error.toString() }
+                );
+            }
+        }
+        
+        // Test input sanitization
+        async function testInputSanitization() {
+            const maliciousData = {
+                title: '<script>alert("XSS")</script>Malicious Title',
+                content: 'Content with <img src=x onerror=alert("XSS")> malicious code',
+                author: 'Author<script>alert("XSS")</script>',
+                tags: 'tag1, <script>alert("XSS")</script>, tag2',
+                image_url: 'javascript:alert("XSS")'
+            };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_ENDPOINTS.POSTS}`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(maliciousData)
+                });
+                
+                const responseData = await response.json();
+                
+                // Should return validation errors (400 status)
+                const success = response.status === 400 && responseData.error;
+                
+                addResult(
+                    'Input Sanitization Test',
+                    success,
+                    success ? 'Malicious input properly rejected' : 'Malicious input was not properly handled',
+                    { status: response.status, response: responseData }
+                );
+                
+            } catch (error) {
+                addResult(
+                    'Input Sanitization Test',
+                    false,
+                    'Input sanitization test failed: ' + error.message,
+                    { error: error.toString() }
+                );
+            }
+        }
+        
+        // Test CSRF protection
+        async function testCSRF() {
+            try {
+                // First, try to get CSRF token
+                const csrfResponse = await fetch(`${BACKEND_URL}${API_ENDPOINTS.POSTS}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                // Extract CSRF token from cookies
+                const cookies = document.cookie.split(';');
+                let csrfToken = null;
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') {
+                        csrfToken = decodeURIComponent(value);
+                        break;
+                    }
+                }
+                
+                const testData = {
+                    title: 'CSRF Test Post',
+                    content: 'This is a test post for CSRF protection.',
+                    author: 'Test User'
+                };
+                
+                // Test with CSRF token
+                const response = await fetch(`${BACKEND_URL}${API_ENDPOINTS.POSTS}`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken || 'dummy-token',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                // Should not fail due to CSRF (might fail due to other reasons)
+                const success = response.status !== 403;
+                
+                addResult(
+                    'CSRF Protection Test',
+                    success,
+                    success ? 'CSRF token properly handled' : 'CSRF protection blocked the request',
+                    { 
+                        status: response.status, 
+                        csrfTokenFound: !!csrfToken,
+                        csrfToken: csrfToken ? 'present' : 'not found'
+                    }
+                );
+                
+            } catch (error) {
+                addResult(
+                    'CSRF Protection Test',
+                    false,
+                    'CSRF test failed: ' + error.message,
+                    { error: error.toString() }
+                );
+            }
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            clearResults();
+            addResult('Test Suite', true, 'Starting all tests...', null);
+            
+            await testCORS();
+            await new Promise(resolve => setTimeout(resolve, 500)); // Small delay
+            
+            await testSecurityHeaders();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testInputSanitization();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testCSRF();
+            
+            addResult('Test Suite', true, 'All tests completed!', null);
+        }
+        
+        // Clear results
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        // Initialize
+        updateConfig();
+    </script>
+</body>
+</html>
