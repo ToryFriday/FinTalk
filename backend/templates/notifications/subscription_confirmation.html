@@ -1,0 +1,58 @@
+{% extends "notifications/base_email.html" %}
+
+{% block title %}Welcome to {{ site_name }} Notifications!{% endblock %}
+
+{% block header_subtitle %}
+    <p style="color: #666; margin: 10px 0 0 0; font-size: 16px;">Subscription Confirmed</p>
+{% endblock %}
+
+{% block content %}
+    <p>Hi {{ subscriber_name }},</p>
+    
+    <p>Welcome to {{ site_name }}! We're thrilled to have you as a subscriber.</p>
+    
+    <div style="background-color: #e8f5e8; border: 1px solid #4caf50; border-radius: 6px; padding: 20px; margin: 20px 0;">
+        <h3 style="color: #2e7d32; margin-top: 0;">✓ Subscription Confirmed</h3>
+        <p style="margin-bottom: 0; color: #2e7d32;">
+            You're now subscribed to: <strong>{{ subscription_type }}</strong>
+        </p>
+    </div>
+    
+    <h3 style="color: #007bff;">What to Expect</h3>
+    
+    {% if subscription_type == "All New Posts" %}
+        <p>You'll receive an email notification whenever we publish a new post. Stay up-to-date with all our latest content!</p>
+    {% elif subscription_type == "Weekly Digest" %}
+        <p>Every week, we'll send you a curated digest of our best posts. Perfect for staying informed without inbox overload!</p>
+    {% elif subscription_type == "Featured Posts Only" %}
+        <p>You'll only receive notifications for our most important and featured content. Quality over quantity!</p>
+    {% elif subscription_type == "Specific Author Posts" %}
+        <p>You'll get notified whenever your selected author publishes new content. Never miss a post from your favorite writer!</p>
+    {% endif %}
+    
+    <div style="background-color: #f0f8ff; border: 1px solid #007bff; border-radius: 6px; padding: 20px; margin: 20px 0;">
+        <h4 style="color: #007bff; margin-top: 0;">Quick Tips:</h4>
+        <ul style="color: #333; margin-bottom: 0;">
+            <li>Add our email address to your contacts to ensure delivery</li>
+            <li>Check your spam folder if you don't see our emails</li>
+            <li>You can unsubscribe at any time using the link in our emails</li>
+            <li>Visit our website anytime to manage your subscription preferences</li>
+        </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ site_url }}" class="btn" style="font-size: 16px; padding: 15px 30px;">
+            Explore {{ site_name }}
+        </a>
+    </div>
+    
+    <p>Thank you for joining our community. We're excited to share great content with you!</p>
+{% endblock %}
+
+{% block footer %}
+    <p>Welcome to the {{ site_name }} community!</p>
+    <p>
+        <a href="{{ site_url }}" style="color: #007bff; text-decoration: none;">Visit {{ site_name }}</a> |
+        <a href="{{ site_url }}/posts" style="color: #007bff; text-decoration: none;">Browse Posts</a>
+    </p>
+{% endblock %}

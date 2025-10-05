@@ -1,0 +1,31 @@
+Content Flagged for Review - {{ site_name }}
+
+A piece of content has been flagged by a user and requires moderation review.
+
+FLAG DETAILS:
+- Reason: {{ reason }}
+- Flagged by: {{ flagged_by.username }}
+- Date: {{ flag.created_at|date:"F j, Y g:i A" }}
+{% if description %}
+- Description: {{ description }}
+{% endif %}
+
+POST DETAILS:
+- Title: {{ post.title }}
+- Author: {{ post.get_author_name }}
+- Published: {{ post.created_at|date:"F j, Y g:i A" }}
+- Content Preview: {{ post.content|truncatewords:50 }}
+
+ACTIONS:
+Please review this flagged content and take appropriate action. You can:
+- Mark the flag as valid and take action on the content
+- Mark the flag as invalid if the content is appropriate  
+- Dismiss the flag if it doesn't require action
+
+LINKS:
+- Review Flag: {{ moderation_url }}
+- View Post: {{ post_url }}
+
+---
+This is an automated notification from {{ site_name }}. Please do not reply to this email.
+If you no longer wish to receive moderation notifications, please contact your administrator.

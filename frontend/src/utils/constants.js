@@ -8,7 +8,9 @@ export const FORM_FIELDS = {
   CONTENT: 'content',
   AUTHOR: 'author',
   TAGS: 'tags',
-  IMAGE_URL: 'image_url'
+  IMAGE_URL: 'image_url',
+  STATUS: 'status',
+  SCHEDULED_PUBLISH_DATE: 'scheduled_publish_date'
 };
 
 // Form validation messages
@@ -52,5 +54,21 @@ export const INITIAL_POST_FORM = {
   content: '',
   author: '',
   tags: '',
-  image_url: ''
+  image_url: '',
+  status: 'draft',
+  scheduled_publish_date: ''
+};
+
+// Post status options
+export const POST_STATUS = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  SCHEDULED: 'scheduled'
+};
+
+// Post status display names
+export const POST_STATUS_DISPLAY = {
+  [POST_STATUS.DRAFT]: 'Draft',
+  [POST_STATUS.PUBLISHED]: 'Published',
+  [POST_STATUS.SCHEDULED]: 'Scheduled'
 };

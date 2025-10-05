@@ -147,8 +147,11 @@ class PostService:
                 title=post_data['title'],
                 content=post_data['content'],
                 author=post_data['author'],
+                author_user=post_data.get('author_user'),
                 tags=post_data.get('tags', ''),
-                image_url=post_data.get('image_url', None)
+                image_url=post_data.get('image_url', None),
+                status=post_data.get('status', 'draft'),
+                scheduled_publish_date=post_data.get('scheduled_publish_date')
             )
             
             # Use transaction to ensure data consistency

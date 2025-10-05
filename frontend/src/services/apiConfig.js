@@ -5,8 +5,28 @@ export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8
 
 // API endpoints
 export const API_ENDPOINTS = {
+  // Authentication endpoints
+  LOGIN: '/api/auth/login/',
+  LOGOUT: '/api/auth/logout/',
+  REGISTER: '/api/auth/register/',
+  VERIFY_EMAIL: '/api/auth/verify-email/',
+  RESEND_VERIFICATION: '/api/auth/resend-verification/',
+  CURRENT_USER: '/api/auth/me/',
+  PROFILE: '/api/auth/profile/',
+  
+  // Posts endpoints
   POSTS: '/api/posts/',
   POST_DETAIL: (id) => `/api/posts/${id}/`,
+  SAVE_POST: (id) => `/api/posts/${id}/save/`,
+  CHECK_SAVED: (id) => `/api/posts/${id}/saved/`,
+  SAVED_POSTS: '/api/posts/saved/',
+  
+  // Media endpoints
+  MEDIA_UPLOAD: '/api/posts/media/upload/',
+  MEDIA_LIST: '/api/posts/media/',
+  MEDIA_DETAIL: (id) => `/api/posts/media/${id}/`,
+  POST_MEDIA: (id) => `/api/posts/${id}/media/`,
+  POST_MEDIA_DETAIL: (postId, mediaId) => `/api/posts/${postId}/media/${mediaId}/`,
 };
 
 // HTTP status codes
@@ -51,6 +71,24 @@ export const VALIDATION_LIMITS = {
   CONTENT_MIN_LENGTH: 10,
   AUTHOR_MAX_LENGTH: 100,
   TAGS_MAX_LENGTH: 500,
+  
+  // Media validation limits
+  MAX_IMAGE_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_VIDEO_SIZE: 50 * 1024 * 1024, // 50MB
+  ALT_TEXT_MAX_LENGTH: 255,
+  CAPTION_MAX_LENGTH: 1000,
+};
+
+// Allowed file types
+export const ALLOWED_FILE_TYPES = {
+  IMAGES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  VIDEOS: ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'],
+};
+
+// File extensions
+export const ALLOWED_EXTENSIONS = {
+  IMAGES: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+  VIDEOS: ['.mp4', '.webm', '.ogg', '.mov', '.avi'],
 };
 
 export default {

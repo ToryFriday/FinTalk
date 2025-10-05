@@ -17,6 +17,20 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -32,21 +46,114 @@ services:
       - DB_PASSWORD=postgres
       - DB_PORT=5432
       - DJANGO_DEBUG=1
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_TASK_ALWAYS_EAGER=False
+      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+      - DEFAULT_FROM_EMAIL=noreply@localhost
+      - MAX_UPLOAD_SIZE=10485760
+      - ALLOWED_IMAGE_TYPES=jpg,jpeg,png,gif,webp
+      - ALLOWED_VIDEO_TYPES=mp4,webm,ogg
+      - MEDIA_ROOT=/app/media
+      - MEDIA_URL=/media/
+      - ACCOUNT_EMAIL_VERIFICATION=mandatory
+      - ENABLE_USER_FOLLOWING=True
+      - ENABLE_EMAIL_SUBSCRIPTIONS=True
+      - ENABLE_CONTENT_MODERATION=True
+      - LOG_LEVEL=INFO
+      - ENABLE_MONITORING=True
     volumes:
       - ./backend:/app
+      - media_files:/app/media
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/posts/"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/posts/')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - DJANGO_SETTINGS_MODULE=blog_manager.settings.development
+      - DB_HOST=db
+      - DB_NAME=fintalk_dev
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_TASK_ALWAYS_EAGER=False
+      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+      - DEFAULT_FROM_EMAIL=noreply@localhost
+      - MAX_UPLOAD_SIZE=10485760
+      - MEDIA_ROOT=/app/media
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./backend:/app
+      - media_files:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A blog_manager worker --loglevel=info --concurrency=2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "celery", "-A", "blog_manager", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # celery-beat:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #     target: development
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=blog_manager.settings.development
+  #     - DB_HOST=db
+  #     - DB_NAME=fintalk_dev
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #     - DB_PORT=5432
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #     - CELERY_TASK_ALWAYS_EAGER=False
+  #     - LOG_LEVEL=INFO
+  #   volumes:
+  #     - ./backend:/app
+  #     - media_files:/app/media
+  #     - celery_beat_data:/app/celerybeat
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   command: celery -A blog_manager beat --loglevel=info --schedule=/app/celerybeat/celerybeat-schedule
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/app/celerybeat.pid') else 1)"]
+  #     interval: 60s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
 
   frontend:
     build:
@@ -57,7 +164,13 @@ services:
       - "3000:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_DISQUS_SHORTNAME=${REACT_APP_DISQUS_SHORTNAME}
+      - REACT_APP_SITE_URL=${REACT_APP_SITE_URL}
+      - REACT_APP_MAX_UPLOAD_SIZE=10485760
+      - REACT_APP_ALLOWED_IMAGE_TYPES=jpg,jpeg,png,gif,webp
+      - REACT_APP_ALLOWED_VIDEO_TYPES=mp4,webm,ogg
       - CHOKIDAR_USEPOLLING=true
+      - GENERATE_SOURCEMAP=true
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -65,6 +178,15 @@ services:
       - backend
     command: npm start
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   postgres_data:
+  redis_data:
+  media_files:
+  celery_beat_data:

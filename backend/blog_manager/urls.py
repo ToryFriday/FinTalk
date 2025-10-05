@@ -25,6 +25,11 @@ def api_root(request):
         'version': '1.0',
         'endpoints': {
             'posts': '/api/posts/',
+            'auth': '/api/auth/',
+            'notifications': '/api/notifications/',
+            'moderation': '/api/moderation/',
+            'monitoring': '/api/monitoring/',
+            'health': '/health/',
             'admin': '/admin/',
         }
     })
@@ -33,6 +38,10 @@ urlpatterns = [
     path('', api_root, name='api-root'),
     path('admin/', admin.site.urls),
     path('', include('posts.urls')),
+    path('', include('moderation.urls')),
+    path('', include('common.urls')),
+    path('api/auth/', include('accounts.urls')),
+    path('api/notifications/', include('notifications.urls')),
 ]
 
 # Custom error handlers

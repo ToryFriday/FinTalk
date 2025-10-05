@@ -1,42 +1,87 @@
-.loading-spinner-container {
+/* Loading Spinner Styles */
+.loading-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--spacing-md);
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: var(--z-modal);
+  backdrop-filter: blur(2px);
 }
 
 .loading-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  display: inline-block;
+  position: relative;
+}
+
+.loading-spinner-circle {
   border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
   animation: spin 1s linear infinite;
 }
 
-.loading-spinner-container.small .loading-spinner {
-  width: 20px;
-  height: 20px;
+/* Size variants */
+.loading-spinner-sm .loading-spinner-circle {
+  width: 16px;
+  height: 16px;
   border-width: 2px;
 }
 
-.loading-spinner-container.medium .loading-spinner {
-  width: 40px;
-  height: 40px;
+.loading-spinner-md .loading-spinner-circle {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
 }
 
-.loading-spinner-container.large .loading-spinner {
-  width: 60px;
-  height: 60px;
-  border-width: 6px;
+.loading-spinner-lg .loading-spinner-circle {
+  width: 32px;
+  height: 32px;
+  border-width: 4px;
 }
 
-.loading-message {
-  margin-top: 1rem;
-  color: #666;
-  font-size: 0.9rem;
+/* Color variants */
+.loading-spinner-primary {
+  color: var(--primary-color);
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.loading-spinner-secondary {
+  color: var(--secondary-color);
+}
+
+.loading-spinner-success {
+  color: var(--success-color);
+}
+
+.loading-spinner-danger {
+  color: var(--danger-color);
+}
+
+.loading-spinner-warning {
+  color: var(--warning-color);
+}
+
+.loading-spinner-info {
+  color: var(--info-color);
+}
+
+.loading-spinner-white {
+  color: white;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner-circle {
+    animation: none;
+    border-top-color: transparent;
+    border-left-color: currentColor;
+  }
 }

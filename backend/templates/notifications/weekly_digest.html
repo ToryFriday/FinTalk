@@ -1,0 +1,70 @@
+{% extends "notifications/base_email.html" %}
+
+{% block title %}Weekly Digest - {{ site_name }}{% endblock %}
+
+{% block header_subtitle %}
+    <p style="color: #666; margin: 10px 0 0 0; font-size: 16px;">
+        Weekly Digest • {{ week_start|date:"M j" }} - {{ week_end|date:"M j, Y" }}
+    </p>
+{% endblock %}
+
+{% block content %}
+    <p>Hi {{ subscriber_name }},</p>
+    
+    <p>Here's your weekly roundup of the latest posts from {{ site_name }}!</p>
+    
+    {% if posts %}
+        <h3 style="color: #007bff; margin-bottom: 20px;">This Week's Highlights</h3>
+        
+        {% for post in posts %}
+            <div class="post-preview">
+                <h3 class="post-title">
+                    <a href="{{ site_url }}/posts/{{ post.id }}" style="color: #007bff; text-decoration: none;">
+                        {{ post.title }}
+                    </a>
+                </h3>
+                <div class="post-meta">
+                    By {{ post.get_author_name }} • {{ post.created_at|date:"F j, Y" }}
+                    {% if post.view_count > 0 %}
+                        • {{ post.view_count }} view{{ post.view_count|pluralize }}
+                    {% endif %}
+                    {% if post.get_tags_list %}
+                        <br>Tags: {{ post.get_tags_list|join:", " }}
+                    {% endif %}
+                </div>
+                <div class="post-excerpt">
+                    {% if post.content|length > 200 %}
+                        {{ post.content|truncatewords:30|safe }}...
+                    {% else %}
+                        {{ post.content|safe }}
+                    {% endif %}
+                </div>
+                <p>
+                    <a href="{{ site_url }}/posts/{{ post.id }}" class="btn">Read More</a>
+                </p>
+            </div>
+        {% endfor %}
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ site_url }}/posts" class="btn" style="font-size: 16px; padding: 15px 30px;">
+                Browse All Posts
+            </a>
+        </div>
+    {% else %}
+        <p>No new posts were published this week, but stay tuned for more great content!</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ site_url }}/posts" class="btn">Browse Previous Posts</a>
+        </div>
+    {% endif %}
+    
+    <p>Thank you for being a valued subscriber. We appreciate your continued interest in {{ site_name }}!</p>
+{% endblock %}
+
+{% block footer %}
+    <p>You're receiving this weekly digest because you subscribed to {{ site_name }} notifications.</p>
+    <p>
+        <a href="{{ site_url }}" style="color: #007bff; text-decoration: none;">Visit {{ site_name }}</a> |
+        <a href="{{ site_url }}/posts" style="color: #007bff; text-decoration: none;">Browse All Posts</a>
+    </p>
+{% endblock %}

@@ -229,3 +229,16 @@
     width: 100%;
   }
 }
+
+/* Comments section */
+.post-comments-section {
+  margin-top: 2rem;
+  padding: 0 2rem 2rem 2rem;
+  border-top: 1px solid #eee;
+}
+
+@media (max-width: 768px) {
+  .post-comments-section {
+    padding: 0 1rem 1.5rem 1rem;
+  }
+}

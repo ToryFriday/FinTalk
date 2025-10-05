@@ -21,7 +21,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'common',
     'posts',
+    'accounts',
+    'notifications',
+    'moderation',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +86,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -92,6 +106,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'EXCEPTION_HANDLER': 'common.exception_handlers.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [
@@ -104,6 +125,49 @@ REST_FRAMEWORK = {
     }
 }
 
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# Celery task routing
+CELERY_TASK_ROUTES = {
+    'posts.tasks.*': {'queue': 'posts'},
+    'accounts.tasks.*': {'queue': 'accounts'},
+    'notifications.tasks.*': {'queue': 'notifications'},
+    'moderation.tasks.*': {'queue': 'moderation'},
+}
+
+# Celery task configuration
+CELERY_TASK_ALWAYS_EAGER = False  # Set to True in testing
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_TASK_IGNORE_RESULT = False
+CELERY_TASK_STORE_EAGER_RESULT = True
+
+# Redis Configuration
+REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+
+# Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'fintalk',
+        'TIMEOUT': 300,  # 5 minutes default timeout
+    }
+}
+
+# Session Configuration - Use Redis for sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
 # Security Settings
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -112,7 +176,7 @@ X_FRAME_OPTIONS = 'DENY'
 
 # CSRF Settings
 CSRF_COOKIE_SECURE = False  # Will be overridden in production
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access to CSRF token
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = []  # Will be set per environment
 
@@ -143,7 +207,7 @@ CORS_EXPOSE_HEADERS = [
     'x-csrftoken',
 ]
 
-# Logging configuration
+# Enhanced Logging Configuration for Monitoring
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -160,6 +224,13 @@ LOGGING = {
             'format': '{levelname} {asctime} {name} {module} {funcName} {lineno} {message}',
             'style': '{',
         },
+        'json': {
+            '()': 'common.logging.JSONFormatter',
+        },
+        'structured': {
+            'format': '{asctime} | {levelname:8} | {name:20} | {funcName:15} | {lineno:4} | {message}',
+            'style': '{',
+        },
     },
     'filters': {
         'require_debug_false': {
@@ -168,21 +239,28 @@ LOGGING = {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'user_action_filter': {
+            '()': 'common.logging.UserActionFilter',
+        },
+        'performance_filter': {
+            '()': 'common.logging.PerformanceFilter',
+        },
     },
     'handlers': {
+        # General application logs
         'file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'blog_manager.log',
+            'filename': BASE_DIR / 'logs' / 'blog_manager.log',
             'maxBytes': 1024*1024*10,  # 10MB
             'backupCount': 5,
-            'formatter': 'detailed',
+            'formatter': 'structured',
             'filters': ['require_debug_false'],
         },
         'file_debug': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'blog_manager_debug.log',
+            'filename': BASE_DIR / 'logs' / 'blog_manager_debug.log',
             'maxBytes': 1024*1024*5,  # 5MB
             'backupCount': 3,
             'formatter': 'detailed',
@@ -199,18 +277,100 @@ LOGGING = {
             'formatter': 'simple',
             'filters': ['require_debug_true'],
         },
+        # Error logs
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'blog_manager_errors.log',
+            'filename': BASE_DIR / 'logs' / 'errors.log',
             'maxBytes': 1024*1024*10,  # 10MB
             'backupCount': 5,
-            'formatter': 'detailed',
+            'formatter': 'json',
+        },
+        # Authentication and user action logs
+        'auth_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'authentication.log',
+            'maxBytes': 1024*1024*5,  # 5MB
+            'backupCount': 10,
+            'formatter': 'json',
+            'filters': ['user_action_filter'],
+        },
+        # Social features logs
+        'social_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'social.log',
+            'maxBytes': 1024*1024*5,  # 5MB
+            'backupCount': 5,
+            'formatter': 'json',
+        },
+        # Content moderation logs
+        'moderation_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'moderation.log',
+            'maxBytes': 1024*1024*5,  # 5MB
+            'backupCount': 10,
+            'formatter': 'json',
+        },
+        # Email notification logs
+        'email_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'email.log',
+            'maxBytes': 1024*1024*5,  # 5MB
+            'backupCount': 5,
+            'formatter': 'json',
+        },
+        # Celery task logs
+        'celery_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'celery.log',
+            'maxBytes': 1024*1024*10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'json',
+        },
+        # Performance logs
+        'performance_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'performance.log',
+            'maxBytes': 1024*1024*5,  # 5MB
+            'backupCount': 3,
+            'formatter': 'json',
+            'filters': ['performance_filter'],
+        },
+        # Security logs
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'maxBytes': 1024*1024*10,  # 10MB
+            'backupCount': 10,
+            'formatter': 'json',
         },
     },
     'loggers': {
+        # Application loggers
         'posts': {
             'handlers': ['file', 'console', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'accounts': {
+            'handlers': ['file', 'console', 'error_file', 'auth_file', 'social_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'moderation': {
+            'handlers': ['file', 'console', 'error_file', 'moderation_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'notifications': {
+            'handlers': ['file', 'console', 'error_file', 'email_file'],
             'level': 'INFO',
             'propagate': False,
         },
@@ -219,19 +379,53 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        # Celery loggers
+        'celery': {
+            'handlers': ['celery_file', 'console', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'celery.task': {
+            'handlers': ['celery_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'celery.worker': {
+            'handlers': ['celery_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Django loggers
         'django': {
             'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['error_file', 'console'],
+            'handlers': ['error_file', 'console', 'performance_file'],
             'level': 'ERROR',
             'propagate': False,
         },
         'django.security': {
-            'handlers': ['error_file', 'console'],
-            'level': 'ERROR',
+            'handlers': ['security_file', 'error_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['performance_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        # Performance monitoring
+        'performance': {
+            'handlers': ['performance_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Security monitoring
+        'security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
             'propagate': False,
         },
     },

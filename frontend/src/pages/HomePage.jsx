@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import PostList from '../components/posts/PostList';
 import './HomePage.css';
 
 const HomePage = () => {
   const location = useLocation();
+  const { isAuthenticated, loading } = useAuth();
   const [navigationMessage, setNavigationMessage] = useState(null);
 
   useEffect(() => {
@@ -24,6 +26,25 @@ const HomePage = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="home-page">
+        <div className="loading-container">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to landing page if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/landing" replace />;
+  }
 
   return (
     <div className="home-page">

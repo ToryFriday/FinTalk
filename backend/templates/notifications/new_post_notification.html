@@ -1,0 +1,43 @@
+{% extends "notifications/base_email.html" %}
+
+{% block title %}New Post: {{ post.title }} - {{ site_name }}{% endblock %}
+
+{% block header_subtitle %}
+    <p style="color: #666; margin: 10px 0 0 0; font-size: 16px;">New Post Published</p>
+{% endblock %}
+
+{% block content %}
+    <p>Hi {{ subscriber_name }},</p>
+    
+    <p>We're excited to share a new post with you from {{ site_name }}!</p>
+    
+    <div class="post-preview">
+        <h2 class="post-title">{{ post.title }}</h2>
+        <div class="post-meta">
+            By {{ post.get_author_name }} • Published {{ post.created_at|date:"F j, Y" }}
+            {% if post.get_tags_list %}
+                <br>Tags: {{ post.get_tags_list|join:", " }}
+            {% endif %}
+        </div>
+        <div class="post-excerpt">
+            {% if post.content|length > 300 %}
+                {{ post.content|truncatewords:50|safe }}...
+            {% else %}
+                {{ post.content|safe }}
+            {% endif %}
+        </div>
+        <p>
+            <a href="{{ post_url }}" class="btn">Read Full Post</a>
+        </p>
+    </div>
+    
+    <p>We hope you enjoy this new content. Happy reading!</p>
+{% endblock %}
+
+{% block footer %}
+    <p>Thank you for subscribing to {{ site_name }} notifications!</p>
+    <p>
+        <a href="{{ site_url }}" style="color: #007bff; text-decoration: none;">Visit {{ site_name }}</a> |
+        <a href="{{ site_url }}/posts" style="color: #007bff; text-decoration: none;">Browse All Posts</a>
+    </p>
+{% endblock %}

@@ -17,6 +17,7 @@ from rest_framework.exceptions import (
     NotFound,
     PermissionDenied,
     AuthenticationFailed,
+    NotAuthenticated,
     MethodNotAllowed,
     NotAcceptable,
     UnsupportedMediaType,
@@ -66,7 +67,7 @@ def custom_exception_handler(exc: Exception, context: Dict[str, Any]) -> Optiona
     
     # Handle DRF exceptions with custom formatting
     elif isinstance(exc, (DRFValidationError, NotFound, PermissionDenied, 
-                         AuthenticationFailed, MethodNotAllowed, NotAcceptable,
+                         AuthenticationFailed, NotAuthenticated, MethodNotAllowed, NotAcceptable,
                          UnsupportedMediaType, Throttled, ParseError)):
         return _handle_drf_exception(exc, request)
     
@@ -217,6 +218,22 @@ def _handle_drf_exception(exc, request) -> Response:
     response = exception_handler(exc, {'request': request})
     
     if response is not None:
+        # For authentication/permission errors, return them as-is with proper status codes
+        # Don't convert them to 500 errors
+        from rest_framework.exceptions import NotAuthenticated
+        if isinstance(exc, (AuthenticationFailed, NotAuthenticated, PermissionDenied)):
+            # Keep the original status code (401, 403) instead of converting to 500
+            custom_response_data = {
+                'error': True,
+                'error_type': 'authentication_required' if isinstance(exc, (AuthenticationFailed, NotAuthenticated)) else 'permission_denied',
+                'message': 'Authentication required' if isinstance(exc, (AuthenticationFailed, NotAuthenticated)) else 'Permission denied',
+                'detail': str(exc),
+                'timestamp': _get_timestamp(),
+                'hint': 'Please login to perform this action' if isinstance(exc, (AuthenticationFailed, NotAuthenticated)) else 'You do not have permission to perform this action'
+            }
+            response.data = custom_response_data
+            return response
+        
         # Determine error type based on exception class
         error_type_map = {
             DRFValidationError: 'validation_error',

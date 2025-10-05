@@ -71,3 +71,14 @@ LOGGING['loggers']['corsheaders'] = {
     'level': 'DEBUG',
     'propagate': False,
 }
+
+# Celery settings for development
+CELERY_TASK_ALWAYS_EAGER = False  # Set to True to run tasks synchronously in development
+CELERY_TASK_EAGER_PROPAGATES = True
+
+# Email backend for development (console output)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Email settings for notifications
+DEFAULT_FROM_EMAIL = 'FinTalk <noreply@fintalk.com>'
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')

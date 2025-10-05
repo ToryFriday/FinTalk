@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Moderation Action Taken</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .action-details {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .post-details {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Moderation Action Taken</h1>
+        <p>A moderation action has been taken on your content following a community report.</p>
+    </div>
+
+    <div class="content">
+        <p>Dear {{ author.get_full_name|default:author.username }},</p>
+        
+        <p>We're writing to inform you that a moderation action has been taken on your post following a community report.</p>
+
+        <div class="post-details">
+            <h3>Post Details</h3>
+            <p><strong>Title:</strong> {{ post.title }}</p>
+            <p><strong>Published:</strong> {{ post.created_at|date:"F j, Y g:i A" }}</p>
+        </div>
+
+        <div class="action-details">
+            <h3>Moderation Action</h3>
+            <p><strong>Reason for Flag:</strong> {{ reason }}</p>
+            <p><strong>Action Taken:</strong> {{ action_taken }}</p>
+            <p><strong>Reviewed by:</strong> {{ moderator.get_full_name|default:moderator.username }}</p>
+            <p><strong>Date:</strong> {{ flag.reviewed_at|date:"F j, Y g:i A" }}</p>
+            
+            {% if resolution_notes %}
+            <p><strong>Moderator Notes:</strong></p>
+            <p>{{ resolution_notes }}</p>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ post_url }}" class="button">View Post</a>
+        </div>
+
+        <p>If you believe this action was taken in error, please contact our moderation team for review. We strive to maintain a respectful and constructive community environment.</p>
+
+        <p>Thank you for your understanding and for being part of our community.</p>
+
+        <p>Best regards,<br>
+        The {{ site_name }} Moderation Team</p>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated notification from {{ site_name }}. Please do not reply to this email.</p>
+        <p>For questions about moderation actions, please contact our support team.</p>
+    </div>
+</body>
+</html>

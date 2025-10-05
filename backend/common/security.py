@@ -204,3 +204,38 @@ class SecurityValidator:
         # Check for excessive repetition that might indicate automated input
         if len(set(value)) < len(value) * 0.1 and len(value) > 50:
             raise ValidationError("Input appears to be automated or repetitive.")
+    
+    @staticmethod
+    def validate_file_upload(file):
+        """
+        Validate uploaded file for security issues.
+        
+        Args:
+            file: Django UploadedFile instance
+            
+        Raises:
+            ValidationError: If file is potentially dangerous
+        """
+        if not file:
+            return
+        
+        # Check file size (basic check, more specific limits in serializers)
+        max_size = 100 * 1024 * 1024  # 100MB absolute maximum
+        if file.size > max_size:
+            raise ValidationError(f"File size exceeds maximum allowed size of {max_size / (1024 * 1024):.0f}MB.")
+        
+        # Check for null bytes in filename (potential security issue)
+        if '\x00' in file.name:
+            raise ValidationError("Invalid filename detected.")
+        
+        # Sanitize filename
+        file.name = InputSanitizer.sanitize_filename(file.name)
+        
+        # Basic content type validation
+        if file.content_type:
+            allowed_types = [
+                'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+                'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'
+            ]
+            if file.content_type not in allowed_types:
+                raise ValidationError(f"File type '{file.content_type}' is not allowed.")

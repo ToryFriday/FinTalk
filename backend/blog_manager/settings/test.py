@@ -32,6 +32,23 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.MD5PasswordHasher',
 ]
 
+# Use dummy cache for testing to avoid Redis connection issues
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
+# Use database sessions instead of cache sessions for testing
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Celery settings for testing - run tasks synchronously
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+
+# Email backend for testing
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
 # Disable logging during tests
 LOGGING = {
     'version': 1,
@@ -46,6 +63,11 @@ LOGGING = {
     },
     'loggers': {
         'posts': {
+            'handlers': ['null'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'accounts': {
             'handlers': ['null'],
             'level': 'INFO',
             'propagate': False,

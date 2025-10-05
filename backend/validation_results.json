@@ -1,0 +1,9 @@
+{
+  "api_documentation": true,
+  "unit_tests": true,
+  "integration_tests": true,
+  "performance_tests": true,
+  "test_coverage": false,
+  "test_factories": true,
+  "overall_score": 83.33333333333334
+}

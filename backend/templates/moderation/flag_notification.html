@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Content Flagged for Review</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .flag-details {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .post-details {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .button.secondary {
+            background-color: #6c757d;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Content Flagged for Review</h1>
+        <p>A piece of content has been flagged by a user and requires moderation review.</p>
+    </div>
+
+    <div class="content">
+        <div class="flag-details">
+            <h3>Flag Details</h3>
+            <p><strong>Reason:</strong> {{ reason }}</p>
+            <p><strong>Flagged by:</strong> {{ flagged_by.username }}</p>
+            <p><strong>Date:</strong> {{ flag.created_at|date:"F j, Y g:i A" }}</p>
+            {% if description %}
+            <p><strong>Description:</strong></p>
+            <p>{{ description }}</p>
+            {% endif %}
+        </div>
+
+        <div class="post-details">
+            <h3>Post Details</h3>
+            <p><strong>Title:</strong> {{ post.title }}</p>
+            <p><strong>Author:</strong> {{ post.get_author_name }}</p>
+            <p><strong>Published:</strong> {{ post.created_at|date:"F j, Y g:i A" }}</p>
+            <p><strong>Content Preview:</strong></p>
+            <p>{{ post.content|truncatewords:50 }}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ moderation_url }}" class="button">Review Flag</a>
+            <a href="{{ post_url }}" class="button secondary">View Post</a>
+        </div>
+
+        <p>Please review this flagged content and take appropriate action. You can:</p>
+        <ul>
+            <li>Mark the flag as valid and take action on the content</li>
+            <li>Mark the flag as invalid if the content is appropriate</li>
+            <li>Dismiss the flag if it doesn't require action</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated notification from {{ site_name }}. Please do not reply to this email.</p>
+        <p>If you no longer wish to receive moderation notifications, please contact your administrator.</p>
+    </div>
+</body>
+</html>

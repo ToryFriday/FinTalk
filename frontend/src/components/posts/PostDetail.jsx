@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PostConfirmDelete from './PostConfirmDelete';
+import DisqusComments from '../common/DisqusComments';
 import './PostDetail.css';
 
 /**
@@ -132,6 +133,15 @@ const PostDetail = ({ post, onDelete, isDeleting = false }) => {
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
       />
+
+      {/* Comments Section */}
+      <section className="post-comments-section">
+        <DisqusComments
+          postId={post.id}
+          postTitle={post.title}
+          postUrl={`${window.location.origin}/posts/${post.id}`}
+        />
+      </section>
     </article>
   );
 };
