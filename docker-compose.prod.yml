@@ -238,6 +238,7 @@ volumes:
   postgres_data:
   redis_data:
   media_files:
+  static_files:
 
 networks:
   blog_network:
