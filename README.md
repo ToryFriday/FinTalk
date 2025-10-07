@@ -2,6 +2,8 @@
 
 A comprehensive financial blog platform built with React.js frontend, Django REST Framework backend, and PostgreSQL database. This enhanced platform provides user authentication, role-based access control, email subscriptions, content moderation, social features, and multimedia support for creating engaging financial content.
 
+https://github.com/user-attachments/assets/b1c8a510-df8e-452d-bd62-aa5368b10d55
+
 ## 🚀 Features
 
 ### Core Platform Features
