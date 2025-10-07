@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive information about testing the Blog Post Manager application. The testing strategy includes unit tests, integration tests, and end-to-end tests to ensure reliability and maintainability.
+This guide provides comprehensive information about testing the FinTalk application. The testing strategy includes unit tests, integration tests, and end-to-end tests to ensure reliability and maintainability.
 
 ## Testing Philosophy
 

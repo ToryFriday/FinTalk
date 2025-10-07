@@ -16,17 +16,17 @@ You need a Disqus account to use the commenting system. Disqus is a free third-p
 4. Fill out the form:
    - **Website Name**: Your blog name (e.g., "FinTalk Blog")
    - **Category**: Choose appropriate category
-   - **Website URL**: Use a placeholder like `https://example.com` (we'll fix this later)
+   - **Website URL**: Leave this field blank
    - **Shortname**: This is important! Choose something like `fintalk-blog` or `your-blog-name`
    - Remember this shortname - you'll need it for configuration
 
-**Important**: Disqus doesn't accept localhost URLs during setup, so use a placeholder domain initially.
+**Important**: Leave the Website URL blank during initial setup. You can add your domain later in the settings.
 
 ### 2. Configure Disqus Site Settings
 
 1. After creating your site, go to Disqus Admin
 2. Navigate to **Settings → General**
-3. Update the **Website URL** to your actual domain (or keep the placeholder for now)
+3. Add your **Website URL** when you have your domain ready (can be left blank for now)
 4. In the **Trusted Domains** section, add:
    - `localhost` (for development - note: no port number)
    - `127.0.0.1` (alternative localhost)
@@ -94,9 +94,9 @@ This error means:
 ### Common Setup Issues
 
 #### "Invalid URL" Error During Site Creation
-- **Problem**: Disqus rejects `http://localhost:3000` during initial setup
-- **Solution**: Use a placeholder like `https://example.com` initially
-- **Fix Later**: Update the URL in Settings → General after creation
+- **Problem**: Disqus may require a URL during initial setup
+- **Solution**: Leave the Website URL field blank during setup
+- **Add Later**: You can add your actual domain in Settings → General after creation
 
 #### Localhost Not Working
 - **Add to Trusted Domains**: `localhost` (without port number)

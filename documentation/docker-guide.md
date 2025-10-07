@@ -1,6 +1,6 @@
 # Docker Configuration Guide
 
-This project uses Docker and Docker Compose to containerize the full-stack blog post manager application.
+This project uses Docker and Docker Compose to containerize the full-stack FinTalk application.
 
 ## Architecture
 

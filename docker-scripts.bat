@@ -135,7 +135,7 @@ if /i "%response%"=="y" (
 goto end
 
 :usage
-echo Blog Post Manager Docker Management Script (Windows)
+echo FinTalk Docker Management Script (Windows)
 echo.
 echo Usage: %0 ^<command^>
 echo.

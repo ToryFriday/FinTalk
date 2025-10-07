@@ -1,6 +1,6 @@
 # CORS and Security Configuration Guide
 
-This document describes the CORS (Cross-Origin Resource Sharing) and security configuration implemented for the Blog Post Manager application.
+This document describes the CORS (Cross-Origin Resource Sharing) and security configuration implemented for the FinTalk  application.
 
 ## Overview
 

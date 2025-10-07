@@ -94,7 +94,7 @@ body {
   font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--text-primary);
-  background-color: var(--background-secondary);
+  background-color: #ffffff !important; /* Force white background */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -575,8 +575,8 @@ body {
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Force light mode - Dark mode disabled */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --text-primary: #ffffff;
     --text-secondary: #b0b0b0;
@@ -586,6 +586,32 @@ body {
     --background-tertiary: #404040;
     --border-color: #555555;
   }
+} */
+
+/* Force light mode globally */
+* {
+  color-scheme: light !important;
+}
+
+html, body, #root, .app, .layout, .main-content, .home-page, .post-list-container {
+  background-color: #ffffff !important;
+}
+
+/* Force all post cards to have white backgrounds */
+.post-card, .post-list-item, .post-card-content {
+  background-color: #ffffff !important;
+  color: #2c3e50 !important;
+}
+
+/* Force all containers to be white */
+div, section, article, main, header, footer {
+  background-color: inherit;
+}
+
+/* Override any potential dark mode classes */
+.bg-gray-900, .bg-gray-800, .bg-gray-700, .bg-slate-900, .bg-slate-800, .bg-zinc-900, .bg-neutral-900 {
+  background-color: #ffffff !important;
+  color: #2c3e50 !important;
 }/
 * Protected Route Styles */
 .auth-loading {
@@ -672,4 +698,31 @@ body {
 .access-denied .btn-secondary:hover {
   background: #4b5563;
   transform: translateY(-1px);
+}
+/*
+ FINAL OVERRIDE - Force light mode with highest specificity */
+html body div.app div.layout main.main-content,
+html body div.app div.layout main.main-content div,
+html body div.app div.layout main.main-content div.home-page,
+html body div.app div.layout main.main-content div.home-page div.post-list-container,
+html body div.app div.layout main.main-content div.home-page div.post-list-container div.post-list-grid,
+html body div.app div.layout main.main-content div.home-page div.post-list-container div.post-list-grid div.post-list-item,
+html body div.app div.layout main.main-content div.home-page div.post-list-container div.post-list-grid div.post-list-item article.post-card,
+html body div.app div.layout main.main-content div.home-page div.post-list-container div.post-list-grid div.post-list-item article.post-card div.post-card-content {
+  background-color: #ffffff !important;
+  color: #2c3e50 !important;
+}
+
+/* Force all text to be dark */
+h1, h2, h3, h4, h5, h6, p, span, div, a {
+  color: #2c3e50 !important;
+}
+
+/* Force all backgrounds to be white */
+* {
+  background-color: inherit !important;
+}
+
+body, html, #root {
+  background-color: #ffffff !important;
 }

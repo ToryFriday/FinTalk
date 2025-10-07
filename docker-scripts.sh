@@ -181,7 +181,7 @@ case "$1" in
         ;;
     
     *)
-        echo "Blog Post Manager Docker Management Script"
+        echo "FinTalk Management Script"
         echo ""
         echo "Usage: $0 <command>"
         echo ""

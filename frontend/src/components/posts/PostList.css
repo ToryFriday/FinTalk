@@ -2,6 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  background-color: #ffffff !important;
 }
 
 /* Success and Error Messages */
@@ -117,10 +118,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
+  background-color: #ffffff !important;
 }
 
 .post-list-item {
   position: relative;
+  background-color: #ffffff !important;
 }
 
 .deleting-overlay {

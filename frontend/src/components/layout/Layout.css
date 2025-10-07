@@ -306,8 +306,8 @@
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Force light mode - Dark mode disabled */
+/* @media (prefers-color-scheme: dark) {
   .header {
     background-color: var(--background-primary);
     border-bottom-color: var(--border-color);
@@ -326,7 +326,7 @@
   .hamburger-icon span {
     background-color: var(--text-primary);
   }
-}/*
+} *//*
  Authentication Section Styles */
 .auth-section {
   display: flex;
